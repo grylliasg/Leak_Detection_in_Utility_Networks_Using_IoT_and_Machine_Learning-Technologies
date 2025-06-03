@@ -1,6 +1,5 @@
 import wntr
 import pandas as pd
-import matplotlib.pylab as plt
 
 # Load EPANET Network
 wn = wntr.network.WaterNetworkModel("networks/Net6.inp")
