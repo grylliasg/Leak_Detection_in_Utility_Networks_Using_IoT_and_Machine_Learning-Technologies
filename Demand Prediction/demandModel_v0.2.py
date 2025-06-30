@@ -95,5 +95,3 @@ plt.xlabel("Time Index")
 plt.ylabel("Demand")
 plt.legend()
 plt.show()
-
-print(common_nodes)
