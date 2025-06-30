@@ -1,3 +1,6 @@
+# Testing the model on a different network than the one it was trained on
+
+
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import StandardScaler
