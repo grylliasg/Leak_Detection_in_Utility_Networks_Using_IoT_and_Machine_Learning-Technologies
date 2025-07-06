@@ -2,6 +2,8 @@ This folder contains data generated through water network simulations using WNTR
 
 📂 Contents
 
+Net1.inp : Small-scale water distribution network
+
 Net3.inp : Medium-scale water distribution network
 
 Net6.inp : Large-scale water distribution network
