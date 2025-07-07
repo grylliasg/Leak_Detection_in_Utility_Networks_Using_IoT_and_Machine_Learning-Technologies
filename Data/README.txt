@@ -10,4 +10,4 @@ Net6.inp : Large-scale water distribution network
 
 datasetGenerator.py : Python script for generating datasets from networks
 
-demand_no_leak(Net 3).csv : Simulated demand data (no leak) from Net3
+Normal flow folder : Simulated demand data (no leak) 
