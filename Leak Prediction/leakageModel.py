@@ -9,7 +9,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, confusion_matrix
 
 # 1. Φόρτωση δεδομένων
-df = pd.read_csv("leaks/pressure__labeled(Net3).csv")
+df = pd.read_csv("Data/Leaks/pressure_leak(Net3).csv")
 
 # 2. Διαχωρισμός features και στόχου
 X = df.drop(columns=["leak"])

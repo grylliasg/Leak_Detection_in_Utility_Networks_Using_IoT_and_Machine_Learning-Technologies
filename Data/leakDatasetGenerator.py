@@ -4,7 +4,7 @@ import random
 import numpy as np
 
 # === 1. Load Network ===
-wn = wntr.network.WaterNetworkModel("networks/Net3.inp")
+wn = wntr.network.WaterNetworkModel("Data/Net3.inp")
 
 # === 2. Define leak nodes and random leak windows ===
 leak_nodes = ['15', '35', '601', '103', '201', '225', '257', '267']
@@ -47,5 +47,5 @@ for t in pressure.index:
 pressure['leak'] = leak_labels
 
 # === 7. Save to CSV ===
-pressure.to_csv('leaks/pressure__labeled(Net3).csv')
-print("CSV saved: leaks/pressure__labeled(Net3).csv")
+pressure.to_csv('Data/Leaks/pressure_leak(Net3).csv')
+print("CSV saved: leaks/pressure_leak(Net3).csv")
