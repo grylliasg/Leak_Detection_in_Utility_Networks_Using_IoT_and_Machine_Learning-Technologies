@@ -7,13 +7,13 @@ import numpy as np
 wn = wntr.network.WaterNetworkModel("Data/Net3.inp")
 
 # === 2. Define leak nodes and random leak windows ===
-leak_nodes = ['15', '35', '601', '103', '201', '225', '257', '267']
+leak_nodes = ['15', '35', '601', '103', '119', '120', '201', '225', '257', '267']
 leak_windows = {}
 
 # Τυχαία χρονικά παράθυρα διαρροής για κάθε κόμβο (μέσα στις 12 ώρες)
 for node in leak_nodes:
     start_hour = random.randint(1, 160)         # Ώρα έναρξης: μεταξύ 1h και 160h
-    duration = random.randint(10, 20) * 3600      # Διάρκεια: 1–2 ώρες
+    duration = random.randint(10, 15) * 3600      # Διάρκεια
     start_time = start_hour * 3600
     end_time = start_time + duration
     leak_windows[node] = (start_time, end_time)

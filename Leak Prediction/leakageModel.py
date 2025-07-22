@@ -29,6 +29,9 @@ print(classification_report(y_test, y_pred))
 # 6. Plot confusion matrix
 cm = confusion_matrix(y_test, y_pred)
 
+# Check if data are balanced (Leak & No leak):
+print(y.value_counts(normalize=True))
+
 plt.figure(figsize=(5,4))
 sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=["No Leak", "Leak"], yticklabels=["No Leak", "Leak"])
 plt.xlabel("Predicted")
