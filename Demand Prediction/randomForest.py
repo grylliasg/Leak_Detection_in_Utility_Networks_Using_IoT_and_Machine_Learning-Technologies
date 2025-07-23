@@ -3,9 +3,10 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_absolute_error, r2_score
 import matplotlib.pyplot as plt
+from joblib import dump
 
 # 1. Φόρτωση δεδομένων
-df = pd.read_csv("demand_no_leak(Net 3).csv")
+df = pd.read_csv("Data/Normal Flow/demand_no_leak(Net 3).csv")
 
 # 2. Αφαίρεση index στήλης αν υπάρχει
 if df.columns[0] == 'Unnamed: 0':
@@ -37,6 +38,9 @@ y_train, y_test = y.iloc[:middle], y.iloc[middle:]
 #model = RandomForestRegressor(n_estimators=500, max_depth=10, random_state=42)
 model = LinearRegression()
 model.fit(X_train, y_train)
+
+# Save the model
+dump(model, 'Models/random_forest_classifier.pkl')
 
 # 8. Πρόβλεψη
 y_pred = model.predict(X_test)

@@ -41,6 +41,10 @@ model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
 history = model.fit(X_train_scaled, y_train, epochs=50, batch_size=32,
                     validation_split=0.2, verbose=1)
 
+# Μετά την εκπαίδευση (μετά το model.fit)
+model.save("Models/neural_network.keras")
+
+
 # 7. Αξιολόγηση στο test set
 y_pred_probs = model.predict(X_test_scaled)
 y_pred = (y_pred_probs > 0.5).astype(int)
