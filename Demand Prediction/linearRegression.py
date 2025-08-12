@@ -40,7 +40,7 @@ model = LinearRegression()
 model.fit(X_train, y_train)
 
 # Save the model
-dump(model, 'Models/random_forest_classifier.pkl')
+dump(model, 'Models/linear_model.pkl')
 
 # 8. Πρόβλεψη
 y_pred = model.predict(X_test)

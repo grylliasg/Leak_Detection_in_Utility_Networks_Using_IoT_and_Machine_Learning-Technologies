@@ -2,7 +2,7 @@ import wntr
 import pandas as pd
 
 # Load EPANET Network
-wn = wntr.network.WaterNetworkModel("networks/Net3.inp")
+wn = wntr.network.WaterNetworkModel("Data/Net1.inp")
 
 # # Add Leakage
 # leak_node = wn.get_node('15')
@@ -23,9 +23,7 @@ flowrate = results.link['flowrate']
 demand = results.node["demand"]
 
 # Save to CSV
-pressure.to_csv('leakage/pressure__leak(Net 3).csv')
-flowrate.to_csv('leakage/flowrate__leak(Net3).csv')
-demand.to_csv("leakage/demand__leak(Net 3).csv")
+demand.to_csv('Data/Normal Flow/demand_no_leak(Net 1).csv')
 
 print("Simulation completed!")
 
