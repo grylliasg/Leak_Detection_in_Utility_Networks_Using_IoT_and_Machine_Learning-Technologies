@@ -1,3 +1,7 @@
+# This model fits on Net 3 and then tests on Net 1
+# --> Based only on COMMON JUNCTION nodes
+
+
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import StandardScaler
@@ -46,13 +50,11 @@ if df_net1.columns[0] == 'Unnamed: 0':
 junctions_net3 = read_junctions_from_inp('Data/Net3.inp')
 junctions_net1 = read_junctions_from_inp('Data/Net1.inp')
 
-# Κοινά junction nodes (που υπάρχουν και στα δύο)
+# όλα τα junctions (που υπάρχουν και στα δύο)
 common_junctions = list(set(junctions_net3).intersection(set(junctions_net1)))
-print(f"Κοινά Junctions (πριν φιλτράρισμα με βάση στήλες): {len(common_junctions)}")
 
-# Φιλτράρισμα για να κρατήσουμε μόνο junctions που υπάρχουν στα dataframes
+# Φιλτράρισμα για να κρατήσουμε μόνο junctions που υπάρχουν και στα 2 dataframes
 common_junctions = [node for node in common_junctions if node in df_net3.columns and node in df_net1.columns]
-print(f"Κοινά Junctions (μετά φιλτράρισμα με βάση στήλες): {len(common_junctions)}")
 print("Κοινά Junction Nodes:", common_junctions)
 
 # Κράτα μόνο κοινά junction nodes στα dataframes
@@ -66,7 +68,7 @@ df_net1_lagged = create_lag_features(df_net1_common, lags)
 
 # Χαρακτηριστικά και στόχοι για Net3
 X_net3 = df_net3_lagged.drop(columns=common_junctions)  # Για είσοδο μόνο τα lags
-y_net3 = df_net3_lagged[common_junctions]
+y_net3 = df_net3_lagged[common_junctions] # Έξοδο οι actual τιμές
 
 # Χαρακτηριστικά και στόχοι για Net1
 X_net1 = df_net1_lagged.drop(columns=common_junctions)
@@ -111,12 +113,13 @@ print(f"Net1 MAE: {mae_net1:.4f}")
 print(f"Net1 R2: {r2_net1:.4f}")
 
 # Οπτικοποίηση για έναν κοινό κόμβο (π.χ. πρώτο κοινό junction)
-node_col = common_junctions[0]
-plt.figure(figsize=(10,6))
-plt.plot(y_net1.index, y_net1[node_col], label="Actual Net1")
-plt.plot(y_net1.index, y_net1_pred[:, 0], label="Predicted Net1", linestyle='--')
-plt.title(f"Demand Prediction for {node_col} (Net1)")
-plt.xlabel("Time Index")
-plt.ylabel("Demand")
-plt.legend()
-plt.show()
+for i in range(0,4):
+    node_col = common_junctions[i]
+    plt.figure(figsize=(10,6))
+    plt.plot(y_net1.index, y_net1[node_col], label="Actual Net1")
+    plt.plot(y_net1.index, y_net1_pred[:, i], label="Predicted Net1", linestyle='--')
+    plt.title(f"Demand Prediction for JUNCTION{node_col} (Net1)")
+    plt.xlabel("Time Index")
+    plt.ylabel("Demand")
+    plt.legend()
+    plt.show()
