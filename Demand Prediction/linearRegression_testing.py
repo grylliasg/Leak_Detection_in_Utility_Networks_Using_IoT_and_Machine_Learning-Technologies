@@ -18,8 +18,8 @@ def create_lag_features(df, lags=5):
     return df_lagged
 
 # Φόρτωση δεδομένων
-df_net3 = pd.read_csv("demand_no_leak(Net 3).csv")
-df_net1 = pd.read_csv("demand_no_leak(Net 1).csv")
+df_net3 = pd.read_csv("Data/Normal flow/demand_no_leak(Net 3).csv")
+df_net1 = pd.read_csv("Data/Normal flow/demand_no_leak(Net 1).csv")
 
 # Αφαίρεση index αν υπάρχει
 if df_net3.columns[0] == 'Unnamed: 0':
@@ -71,6 +71,7 @@ r2_net3 = r2_score(y_test, y_test_pred, multioutput='uniform_average')
 print(f"Net3 Test MAE: {mae_net3:.4f}")
 print(f"Net3 Test R2: {r2_net3:.4f}")
 
+# -----------------------
 # --- Δοκιμή στο Net1 ---
 
 # Κανονικοποίηση X_net1 με scaler του Net3
