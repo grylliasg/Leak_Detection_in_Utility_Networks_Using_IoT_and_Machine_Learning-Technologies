@@ -3,10 +3,10 @@ import pandas as pd
 import random
 import numpy as np
 
-# === 1. Load Network ===
+# 1. Load Network
 wn = wntr.network.WaterNetworkModel("Data/Net3.inp")
 
-# === 2. Define leak nodes and random leak windows ===
+# 2. Define leak nodes and random leak windows 
 leak_nodes = ['15', '35', '601', '103', '119', '120', '201', '225', '257', '267']
 leak_windows = {}
 
@@ -18,7 +18,7 @@ for node in leak_nodes:
     end_time = start_time + duration
     leak_windows[node] = (start_time, end_time)
 
-    # === 3. Add Leak ===
+    # 3. Add Leak 
     leak_node = wn.get_node(node)
     leak_node.add_leak(wn, area=5e-4, start_time=start_time, end_time=end_time)
 
@@ -27,14 +27,14 @@ print("Leak periods per node:")
 for node, (start, end) in leak_windows.items():
     print(f"Node {node}: {start//3600}h–{end//3600}h")
 
-# === 4. Run Simulation ===
+# 4. Run Simulation 
 sim = wntr.sim.WNTRSimulator(wn)
 results = sim.run_sim()
 
-# === 5. Extract Results ===
+# 5. Extract Results 
 pressure = results.node['pressure']  # DataFrame: rows = time, columns = nodes
 
-# === 6. Create 'leak' label with node name(s) ===
+# 6. Create 'leak' label with node name(s) 
 leak_labels = []
 
 for t in pressure.index:
@@ -46,6 +46,6 @@ for t in pressure.index:
 
 pressure['leak'] = leak_labels
 
-# === 7. Save to CSV ===
+# 7. Save to CSV 
 pressure.to_csv('Data/Leaks/pressure_leak(Net3).csv')
 print("CSV saved: leaks/pressure_leak(Net3).csv")
