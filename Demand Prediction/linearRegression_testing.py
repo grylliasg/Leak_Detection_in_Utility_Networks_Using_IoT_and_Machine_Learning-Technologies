@@ -26,7 +26,7 @@ def read_junctions_from_inp(filepath):
             junctions.append(junction_id)
     return junctions
 
-def create_lag_features(df, lags=5):
+def create_lag_features(df, lags):
     df_lagged = df.copy()
     for lag in range(1, lags + 1):
         lagged = df.shift(lag)
@@ -62,7 +62,7 @@ df_net3_common = df_net3[common_junctions]
 df_net1_common = df_net1[common_junctions]
 
 # Δημιουργία lag features στα κοινά junction nodes
-lags = 5
+lags = 1
 df_net3_lagged = create_lag_features(df_net3_common, lags)
 df_net1_lagged = create_lag_features(df_net1_common, lags)
 
