@@ -3,6 +3,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import time
 
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
@@ -20,10 +21,21 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 
 # 4. Εκπαίδευση μοντέλου
 model = RandomForestClassifier(n_estimators=100, class_weight="balanced", random_state=42)
+
+start_train = time.time()          # ξεκινάμε μέτρηση χρόνου εκπαίδευσης
 model.fit(X_train, y_train)
+end_train = time.time()            # σταματάμε μέτρηση χρόνου
+
+training_time = end_train - start_train
+print(f"Training Time: {training_time:.4f} seconds")
 
 # 5. Πρόβλεψη & αναφορά
+start_pred = time.time()
 y_pred = model.predict(X_test)
+end_pred = time.time()
+
+prediction_time = end_pred - start_pred
+print(f"Prediction Time: {prediction_time:.4f} seconds")
 print(classification_report(y_test, y_pred))
 
 # 6. Plot confusion matrix
