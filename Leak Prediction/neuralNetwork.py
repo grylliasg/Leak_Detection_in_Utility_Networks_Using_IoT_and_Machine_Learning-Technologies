@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import time  # nea prosthiki: timing
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
@@ -37,19 +38,24 @@ model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
               loss='binary_crossentropy',
               metrics=['accuracy'])
 
-# 6. Εκπαίδευση μοντέλου
+# 6. Εκπαίδευση μοντέλου με μέτρηση χρόνου
+start_time = time.time()
 history = model.fit(X_train_scaled, y_train, epochs=50, batch_size=32,
                     validation_split=0.2, verbose=1)
+training_time = time.time() - start_time
+print(f"\nTraining Time: {training_time:.2f} seconds")
 
-# Μετά την εκπαίδευση (μετά το model.fit)
+# Μετά την εκπαίδευση
 model.save("Models/neural_network.keras")
 
-
-# 7. Αξιολόγηση στο test set
+# 7. Αξιολόγηση στο test set με μέτρηση χρόνου πρόβλεψης
+start_pred_time = time.time()
 y_pred_probs = model.predict(X_test_scaled)
+prediction_time = time.time() - start_pred_time
 y_pred = (y_pred_probs > 0.5).astype(int)
+print(f"Prediction Time: {prediction_time:.4f} seconds\n")
 
-print("\nClassification Report:")
+print("Classification Report:")
 print(classification_report(y_test, y_pred))
 
 # 8. Confusion Matrix
