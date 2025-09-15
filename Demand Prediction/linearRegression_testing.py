@@ -1,76 +1,125 @@
+# This model fits on Net 3 and then tests on Net 1
+# --> Based only on COMMON JUNCTION nodes
+
+
 import pandas as pd
-from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_absolute_error, r2_score
 import matplotlib.pyplot as plt
-from joblib import dump
-import time 
 
-# 1. Φόρτωση δεδομένων
-df = pd.read_csv("Data/Normal Flow/demand_no_leak(Net 3).csv")
+def read_junctions_from_inp(filepath):
+    junctions = []
+    with open(filepath, 'r') as f:
+        lines = f.readlines()
+    inside_junctions = False
+    for line in lines:
+        line = line.strip()
+        if line.upper() == '[JUNCTIONS]':
+            inside_junctions = True
+            continue
+        if inside_junctions:
+            if line == '' or line.startswith('['):  # Τέλος ενότητας
+                break
+            # Η πρώτη λέξη κάθε γραμμής είναι το όνομα junction (αριθμός)
+            junction_id = line.split()[0]
+            junctions.append(junction_id)
+    return junctions
 
-# 2. Αφαίρεση index στήλης αν υπάρχει
-if df.columns[0] == 'Unnamed: 0':
-    df = df.drop(columns=df.columns[0])
+def create_lag_features(df, lags):
+    df_lagged = df.copy()
+    for lag in range(1, lags + 1):
+        lagged = df.shift(lag)
+        lagged.columns = [f"{col}_lag{lag}" for col in df.columns]
+        df_lagged = pd.concat([df_lagged, lagged], axis=1)
+    df_lagged.dropna(inplace=True)
+    df_lagged.reset_index(drop=True, inplace=True)
+    return df_lagged
 
-df = df.loc[:, (df != 0).any(axis=0)]
+# Φόρτωση δεδομένων
+df_net3 = pd.read_csv("Data/Normal flow/demand_no_leak(Net 3).csv")
+df_net1 = pd.read_csv("Data/Normal flow/demand_no_leak(Net 1).csv")
 
-# 3. Δημιουργία lag features για κάθε κόμβο
+# Αφαίρεση index αν υπάρχει
+if df_net3.columns[0] == 'Unnamed: 0':
+    df_net3 = df_net3.drop(columns=df_net3.columns[0])
+if df_net1.columns[0] == 'Unnamed: 0':
+    df_net1 = df_net1.drop(columns=df_net1.columns[0])
+
+# Διάβασε junction nodes από τα αρχεία .inp
+junctions_net3 = read_junctions_from_inp('Data/Net3.inp')
+junctions_net1 = read_junctions_from_inp('Data/Net1.inp')
+
+# όλα τα junctions (που υπάρχουν και στα δύο)
+common_junctions = list(set(junctions_net3).intersection(set(junctions_net1)))
+
+# Φιλτράρισμα για να κρατήσουμε μόνο junctions που υπάρχουν και στα 2 dataframes
+common_junctions = [node for node in common_junctions if node in df_net3.columns and node in df_net1.columns]
+print("Κοινά Junction Nodes:", common_junctions)
+
+# Κράτα μόνο κοινά junction nodes στα dataframes
+df_net3_common = df_net3[common_junctions]
+df_net1_common = df_net1[common_junctions]
+
+# Δημιουργία lag features στα κοινά junction nodes
 lags = 5
-df_lagged = df.copy()
-for lag in range(1, lags + 1):
-    lagged = df.shift(lag)
-    lagged.columns = [f"{col}_lag{lag}" for col in df.columns]
-    df_lagged = pd.concat([df_lagged, lagged], axis=1)
+df_net3_lagged = create_lag_features(df_net3_common, lags)
+df_net1_lagged = create_lag_features(df_net1_common, lags)
 
-# 4. Αφαίρεση NaN γραμμών που προκύπτουν από τα lags
-df_lagged.dropna(inplace=True)
-df_lagged.reset_index(drop=True, inplace=True)
+# Χαρακτηριστικά και στόχοι για Net3
+X_net3 = df_net3_lagged.drop(columns=common_junctions)  # Για είσοδο μόνο τα lags
+y_net3 = df_net3_lagged[common_junctions] # Έξοδο οι actual τιμές
 
-# 5. Ορισμός χαρακτηριστικών και στόχων
-X = df_lagged.drop(columns=df.columns)
-y = df_lagged[df.columns]
+# Χαρακτηριστικά και στόχοι για Net1
+X_net1 = df_net1_lagged.drop(columns=common_junctions)
+y_net1 = df_net1_lagged[common_junctions]
 
-# 6. Διαχωρισμός σε train/test
-middle = len(X) // 2
-X_train, X_test = X.iloc[:middle], X.iloc[middle:]
-y_train, y_test = y.iloc[:middle], y.iloc[middle:]
+# Διαχωρισμός Net3 σε train/test (χρονικά)
+middle = len(X_net3) // 2
+X_train, X_test = X_net3.iloc[:middle], X_net3.iloc[middle:]
+y_train, y_test = y_net3.iloc[:middle], y_net3.iloc[middle:]
 
-# 7. Εκπαίδευση μοντέλου με μέτρηση χρόνου
+# Κανονικοποίηση
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# Εκπαίδευση Linear Regression σε Net3
 model = LinearRegression()
+model.fit(X_train_scaled, y_train)
 
-start_train = time.time()          # ξεκινάμε μέτρηση χρόνου εκπαίδευσης
-model.fit(X_train, y_train)
-end_train = time.time()            # σταματάμε μέτρηση χρόνου
+# Πρόβλεψη σε test set Net3
+y_test_pred = model.predict(X_test_scaled)
 
-training_time = end_train - start_train
-print(f"Training Time: {training_time:.4f} seconds")
+# Αξιολόγηση στο test set Net3
+mae_net3 = mean_absolute_error(y_test, y_test_pred)
+r2_net3 = r2_score(y_test, y_test_pred, multioutput='uniform_average')
+print(f"Net3 Test MAE: {mae_net3:.4f}")
+print(f"Net3 Test R2: {r2_net3:.4f}")
 
-# Save the model
-dump(model, 'Models/linear_model.pkl')
+# -----------------------
+# --- Δοκιμή στο Net1 ---
 
-# 8. Πρόβλεψη με μέτρηση χρόνου
-start_pred = time.time()
-y_pred = model.predict(X_test)
-end_pred = time.time()
+# Κανονικοποίηση X_net1 με scaler του Net3
+X_net1_scaled = scaler.transform(X_net1)
 
-prediction_time = end_pred - start_pred
-print(f"Prediction Time: {prediction_time:.4f} seconds")
+# Πρόβλεψη για Net1
+y_net1_pred = model.predict(X_net1_scaled)
 
-# 9. Αξιολόγηση συνολικά
-mae = mean_absolute_error(y_test, y_pred)
-r2 = r2_score(y_test, y_pred, multioutput='uniform_average')
-print(f"Mean Absolute Error: {mae:.4f}")
-print(f"R² Score: {r2:.4f}")
+# Αξιολόγηση στο Net1
+mae_net1 = mean_absolute_error(y_net1, y_net1_pred)
+r2_net1 = r2_score(y_net1, y_net1_pred, multioutput='uniform_average')
+print(f"Net1 MAE: {mae_net1:.4f}")
+print(f"Net1 R2: {r2_net1:.4f}")
 
-# 10. Οπτικοποίηση ενός κόμβου
-
-node_col = y.columns[1] # Name of column
-plt.figure(figsize=(10,6))
-plt.plot(y_test.index, y_test[node_col], label="Actual")
-plt.plot(y_test.index, y_pred[:, 1], label="Predicted", linestyle='--')
-plt.title(f"Demand Prediction for {node_col}")
-plt.xlabel("Time Index")
-plt.ylabel("Demand")
-plt.legend()
-plt.show()
+# Οπτικοποίηση για έναν κοινό κόμβο (π.χ. πρώτο κοινό junction)
+for i in range(0,4):
+    node_col = common_junctions[i]
+    plt.figure(figsize=(10,6))
+    plt.plot(y_net1.index, y_net1[node_col], label="Actual Net1")
+    plt.plot(y_net1.index, y_net1_pred[:, i], label="Predicted Net1", linestyle='--')
+    plt.title(f"Demand Prediction for JUNCTION{node_col} (Net1)")
+    plt.xlabel("Time Index")
+    plt.ylabel("Demand")
+    plt.legend()
+    plt.show()
