@@ -62,7 +62,7 @@ df_net3_common = df_net3[common_junctions]
 df_net1_common = df_net1[common_junctions]
 
 # Δημιουργία lag features στα κοινά junction nodes
-lags = 1
+lags = 5
 df_net3_lagged = create_lag_features(df_net3_common, lags)
 df_net1_lagged = create_lag_features(df_net1_common, lags)
 
