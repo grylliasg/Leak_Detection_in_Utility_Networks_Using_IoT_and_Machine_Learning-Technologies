@@ -1,5 +1,5 @@
-**Leak Detection in Water Supply Networks Using IoT Technologies and Machine Learning
-**
+**Leak Detection in Water Supply Networks Using IoT Technologies and Machine Learning**
+
 Leak detection in water supply networks using IoT technologies has several significant impacts and benefits, both economically and environmentally. Timely detection of leaks can prevent substantial water or gas losses, reducing utility costs for water providers and, consequently, for consumers. Additionally, prompt response to leaks can prevent costly infrastructure damage and the need for emergency repairs. Leak detection contributes to the conservation of valuable resources such as water, which is essential for industries and households. Protecting water resources helps sustain aquatic ecosystems and reduces the need for energy-intensive water treatment processes. Similar benefits are observed in infrastructure, as early leak detection can prevent pipeline damage, whose repair or replacement can be costly. Protecting critical infrastructure ensures the reliability of essential services for end-users.
 
 Leak detection in water supply networks using Internet of Things (IoT) technologies is an efficient way to monitor and identify water or gas leaks in pipelines. IoT solutions provide data processing and analysis, enabling rapid response and mitigation of potential damage or losses. Such systems incorporate a wide range of technologies, including:
